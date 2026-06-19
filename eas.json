@@ -9,18 +9,30 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_d29ya2luZy1idXJyby01NC5jbGVyay5hY2NvdW50cy5kZXYk",
+        "EXPO_PUBLIC_API_BASE_URL": "https://bhavishyadeepa.com"
       }
     },
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_d29ya2luZy1idXJyby01NC5jbGVyay5hY2NvdW50cy5kZXYk",
+        "EXPO_PUBLIC_API_BASE_URL": "https://bhavishyadeepa.com"
       }
     },
     "production": {
       "autoIncrement": true,
       "android": {
         "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_d29ya2luZy1idXJyby01NC5jbGVyay5hY2NvdW50cy5kZXYk",
+        "EXPO_PUBLIC_API_BASE_URL": "https://bhavishyadeepa.com"
       }
     }
   },

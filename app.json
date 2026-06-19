@@ -42,6 +42,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d3a1e247-31bf-485a-a20e-b91d40db24bb"
+      }
+    },
+    "owner": "tatwalabs-devs"
   }
 }
