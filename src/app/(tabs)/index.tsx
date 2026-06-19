@@ -2,17 +2,21 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
+import { useAuth } from '@clerk/clerk-expo';
+
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { generateBirthChart } from '@/lib/astrology';
 import type { ChartInput } from '@/lib/astrology/types';
 import { saveChart, countCharts } from '@/lib/db';
 import { cacheRecentPlace, geocodePlace, getRecentPlaces, type GeocodedPlace } from '@/lib/location';
+import { runSync } from '@/lib/sync';
 
 const FREE_CHART_LIMIT = 1;
 
 export default function GenerateScreen() {
   const router = useRouter();
+  const { isSignedIn, getToken } = useAuth();
   const [name, setName] = useState('');
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
@@ -81,6 +85,10 @@ export default function GenerateScreen() {
       };
       const chart = generateBirthChart(input);
       const saved = await saveChart(input, chart, name || coords.place);
+      if (isSignedIn) {
+        // Fire-and-forget — Saved tab reflects the real synced state regardless of outcome.
+        runSync(() => getToken()).catch(() => {});
+      }
       router.push(`/chart/${saved.id}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to generate chart.');

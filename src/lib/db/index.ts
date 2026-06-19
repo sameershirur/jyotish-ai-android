@@ -133,6 +133,82 @@ export async function deleteChart(id: string): Promise<void> {
   await db.runAsync("DELETE FROM saved_charts WHERE id = ?", [id]);
 }
 
+export async function getUnsyncedCharts(): Promise<SavedChart[]> {
+  await initDb();
+  const db = await dbPromise;
+  const rows = await db.getAllAsync<SavedChartRow>(
+    "SELECT * FROM saved_charts WHERE synced = 0"
+  );
+  return rows.map(rowToSavedChart);
+}
+
+export async function markSynced(id: string, updatedAt: string): Promise<void> {
+  await initDb();
+  const db = await dbPromise;
+  await db.runAsync(
+    "UPDATE saved_charts SET synced = 1, updated_at = ? WHERE id = ?",
+    [updatedAt, id]
+  );
+}
+
+/** Insert or update a row from a server-side chart record during pull sync. */
+export async function upsertFromRemote(remote: {
+  id: string;
+  label: string | null;
+  chart: BirthChart;
+  updatedAt: string;
+}): Promise<void> {
+  await initDb();
+  const db = await dbPromise;
+  const existing = await db.getFirstAsync<{ updated_at: string }>(
+    "SELECT updated_at FROM saved_charts WHERE id = ?",
+    [remote.id]
+  );
+
+  // Last-write-wins (FR-11.5): skip if our local copy is already newer than the server's.
+  if (existing && new Date(existing.updated_at) >= new Date(remote.updatedAt)) {
+    return;
+  }
+
+  const input = remote.chart.input;
+  if (existing) {
+    await db.runAsync(
+      `UPDATE saved_charts SET name = ?, label = ?, dob = ?, tob = ?, lat = ?, lng = ?, timezone = ?, chart_data = ?, synced = 1, updated_at = ?
+       WHERE id = ?`,
+      [
+        input.place,
+        remote.label,
+        input.date,
+        input.time,
+        input.latitude,
+        input.longitude,
+        String(input.timezone),
+        JSON.stringify(remote.chart),
+        remote.updatedAt,
+        remote.id,
+      ]
+    );
+  } else {
+    await db.runAsync(
+      `INSERT INTO saved_charts (id, name, label, dob, tob, lat, lng, timezone, chart_data, synced, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`,
+      [
+        remote.id,
+        input.place,
+        remote.label,
+        input.date,
+        input.time,
+        input.latitude,
+        input.longitude,
+        String(input.timezone),
+        JSON.stringify(remote.chart),
+        remote.updatedAt,
+        remote.updatedAt,
+      ]
+    );
+  }
+}
+
 export async function countCharts(): Promise<number> {
   await initDb();
   const db = await dbPromise;

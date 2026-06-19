@@ -1,13 +1,17 @@
 import { useCallback, useState } from 'react';
-import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, FlatList, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { useAuth } from '@clerk/clerk-expo';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { deleteChart, listCharts, type SavedChart } from '@/lib/db';
+import { useAutoSync } from '@/hooks/useAutoSync';
 
 export default function SavedScreen() {
   const router = useRouter();
+  const { isSignedIn } = useAuth();
+  const { sync, syncing } = useAutoSync();
   const [charts, setCharts] = useState<SavedChart[]>([]);
 
   const refresh = useCallback(() => {
@@ -15,6 +19,13 @@ export default function SavedScreen() {
   }, []);
 
   useFocusEffect(refresh);
+
+  async function handleRefresh() {
+    if (isSignedIn) {
+      await sync();
+    }
+    refresh();
+  }
 
   function confirmDelete(chart: SavedChart) {
     Alert.alert('Delete chart', `Remove "${chart.label}"?`, [
@@ -35,6 +46,16 @@ export default function SavedScreen() {
       contentContainerStyle={styles.container}
       data={charts}
       keyExtractor={(c) => c.id}
+      refreshControl={
+        isSignedIn ? <RefreshControl refreshing={syncing} onRefresh={handleRefresh} /> : undefined
+      }
+      ListHeaderComponent={
+        !isSignedIn ? (
+          <ThemedText type="small" themeColor="textSecondary" style={styles.hint}>
+            Sign in (Settings tab) to sync these charts across devices.
+          </ThemedText>
+        ) : undefined
+      }
       ListEmptyComponent={
         <ThemedView style={styles.empty}>
           <ThemedText themeColor="textSecondary">No saved charts yet. Generate one from the Generate tab.</ThemedText>
@@ -60,6 +81,7 @@ export default function SavedScreen() {
 const styles = StyleSheet.create({
   container: { padding: 16, gap: 8 },
   empty: { padding: 32, alignItems: 'center' },
+  hint: { paddingBottom: 8 },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
