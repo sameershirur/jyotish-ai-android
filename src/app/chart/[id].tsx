@@ -5,6 +5,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import SouthIndianChart from '@/components/SouthIndianChart';
+import InterpretationSection from '@/components/InterpretationSection';
 import { getChart, type SavedChart } from '@/lib/db';
 
 export default function ChartDisplayScreen() {
@@ -103,6 +104,8 @@ export default function ChartDisplayScreen() {
           </Row>
         ))}
       </Section>
+
+      <InterpretationSection chart={chart} />
     </ScrollView>
   );
 }
