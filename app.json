@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "jyotish-ai-android",
+    "name": "Jyotish AI",
     "slug": "jyotish-ai-android",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -11,6 +11,7 @@
       "icon": "./assets/expo.icon"
     },
     "android": {
+      "package": "com.bhavishyadeepa.jyotishai",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
