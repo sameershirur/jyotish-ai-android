@@ -11,12 +11,14 @@ import type { ChartInput } from '@/lib/astrology/types';
 import { saveChart, countCharts } from '@/lib/db';
 import { cacheRecentPlace, geocodePlace, getRecentPlaces, type GeocodedPlace } from '@/lib/location';
 import { runSync } from '@/lib/sync';
+import { useUserPlan } from '@/hooks/useUserPlan';
 
 const FREE_CHART_LIMIT = 1;
 
 export default function GenerateScreen() {
   const router = useRouter();
   const { isSignedIn, getToken } = useAuth();
+  const { plan } = useUserPlan();
   const [name, setName] = useState('');
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
@@ -63,13 +65,15 @@ export default function GenerateScreen() {
       return;
     }
 
-    const existing = await countCharts();
-    if (existing >= FREE_CHART_LIMIT) {
-      Alert.alert(
-        'Free plan limit reached',
-        `Free plan allows ${FREE_CHART_LIMIT} saved chart. Upgrade to Pro on the web app for more.`
-      );
-      return;
+    if (plan !== 'pro') {
+      const existing = await countCharts();
+      if (existing >= FREE_CHART_LIMIT) {
+        Alert.alert(
+          'Free plan limit reached',
+          `Free plan allows ${FREE_CHART_LIMIT} saved chart. Upgrade to Pro on the web app for unlimited charts.`
+        );
+        return;
+      }
     }
 
     setGenerating(true);
