@@ -1,18 +1,58 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useSignIn } from '@clerk/clerk-expo';
+import * as Linking from 'expo-linking';
+import * as WebBrowser from 'expo-web-browser';
+import { useSignIn, useSSO } from '@clerk/clerk-expo';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 
+// Required once at module scope so the OAuth browser redirect resolves back
+// into the app instead of leaving the browser tab open.
+WebBrowser.maybeCompleteAuthSession();
+
 export default function SignInScreen() {
   const router = useRouter();
   const { signIn, setActive, isLoaded } = useSignIn();
+  const { startSSOFlow } = useSSO();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Pre-warms the browser so the OAuth flow opens faster (Android only, no-op elsewhere).
+  useEffect(() => {
+    void WebBrowser.warmUpAsync();
+    return () => {
+      void WebBrowser.coolDownAsync();
+    };
+  }, []);
+
+  const handleGoogleSignIn = useCallback(async () => {
+    setGoogleLoading(true);
+    setError(null);
+    try {
+      const { createdSessionId, setActive: setActiveSSO } = await startSSOFlow({
+        strategy: 'oauth_google',
+        redirectUrl: Linking.createURL('/sign-in'),
+      });
+      if (createdSessionId && setActiveSSO) {
+        await setActiveSSO({ session: createdSessionId });
+        router.back();
+      }
+      // No createdSessionId means the user cancelled/dismissed the browser - not an error.
+    } catch (e) {
+      const message =
+        e && typeof e === 'object' && 'errors' in e
+          ? (e as { errors?: { message?: string }[] }).errors?.[0]?.message
+          : undefined;
+      setError(message ?? 'Google sign-in failed. Please try again.');
+    } finally {
+      setGoogleLoading(false);
+    }
+  }, [startSSOFlow, router]);
 
   async function handleSignIn() {
     if (!isLoaded || !email || !password) return;
@@ -45,6 +85,20 @@ export default function SignInScreen() {
         generation works without signing in.
       </ThemedText>
 
+      <Pressable style={styles.googleButton} onPress={handleGoogleSignIn} disabled={googleLoading}>
+        {googleLoading ? (
+          <ActivityIndicator color="#1f2937" />
+        ) : (
+          <ThemedText style={styles.googleButtonText}>Continue with Google</ThemedText>
+        )}
+      </Pressable>
+
+      <View style={styles.dividerRow}>
+        <View style={styles.dividerLine} />
+        <ThemedText type="small" themeColor="textSecondary">or</ThemedText>
+        <View style={styles.dividerLine} />
+      </View>
+
       <View style={styles.field}>
         <ThemedText type="smallBold">Email</ThemedText>
         <TextInput
@@ -52,6 +106,7 @@ export default function SignInScreen() {
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
+          autoCorrect={false}
           keyboardType="email-address"
           placeholder="you@example.com"
         />
@@ -64,6 +119,7 @@ export default function SignInScreen() {
           value={password}
           onChangeText={setPassword}
           secureTextEntry
+          autoCorrect={false}
           placeholder="••••••••"
         />
       </View>
@@ -100,5 +156,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  googleButton: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 10,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  googleButtonText: { color: '#1f2937', fontWeight: '700', fontSize: 16 },
+  dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: '#d1d5db' },
   link: { textAlign: 'center' },
 });
