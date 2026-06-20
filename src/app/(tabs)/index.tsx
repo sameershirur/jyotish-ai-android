@@ -111,15 +111,41 @@ export default function GenerateScreen() {
       </ThemedView>
 
       <Field label="Name (optional)">
-        <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="e.g. Self" />
+        <TextInput
+          style={styles.input}
+          value={name}
+          onChangeText={setName}
+          placeholder="e.g. Self"
+          autoCorrect={false}
+          autoComplete="off"
+          spellCheck={false}
+        />
       </Field>
 
       <Field label="Date of birth (YYYY-MM-DD)">
-        <TextInput style={styles.input} value={date} onChangeText={setDate} placeholder="1990-06-15" />
+        <TextInput
+          style={styles.input}
+          value={date}
+          onChangeText={setDate}
+          placeholder="1990-06-15"
+          autoCorrect={false}
+          autoComplete="off"
+          spellCheck={false}
+          keyboardType="numbers-and-punctuation"
+        />
       </Field>
 
       <Field label="Time of birth (HH:MM, 24h)">
-        <TextInput style={styles.input} value={time} onChangeText={setTime} placeholder="12:00" />
+        <TextInput
+          style={styles.input}
+          value={time}
+          onChangeText={setTime}
+          placeholder="12:00"
+          autoCorrect={false}
+          autoComplete="off"
+          spellCheck={false}
+          keyboardType="numbers-and-punctuation"
+        />
       </Field>
 
       <Field label="Place of birth">
@@ -129,6 +155,9 @@ export default function GenerateScreen() {
             value={place}
             onChangeText={(t) => { setPlace(t); setCoords(null); }}
             placeholder="Mumbai, India"
+            autoCorrect={false}
+            autoComplete="off"
+            spellCheck={false}
           />
           <Pressable style={styles.lookupButton} onPress={handleLookupPlace} disabled={geocoding}>
             {geocoding ? <ActivityIndicator color="#fff" /> : <ThemedText style={styles.lookupButtonText}>Lookup</ThemedText>}
