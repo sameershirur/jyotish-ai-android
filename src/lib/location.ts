@@ -11,8 +11,24 @@ export type GeocodedPlace = {
 const RECENT_PLACES_KEY = "recent_places";
 const MAX_RECENT = 10;
 
-/** Geocodes a place name to coordinates. Requires connectivity. */
+export class LocationPermissionDeniedError extends Error {
+  constructor() {
+    super("Location permission denied — allow it in your phone's app settings to look up places.");
+  }
+}
+
+/**
+ * Geocodes a place name to coordinates. Requires connectivity, and Android's
+ * Geocoder also requires location permission to be granted - geocodeAsync
+ * throws otherwise, which previously surfaced as a misleading "needs
+ * internet" message regardless of the real cause.
+ */
 export async function geocodePlace(query: string): Promise<GeocodedPlace[]> {
+  const { status } = await Location.requestForegroundPermissionsAsync();
+  if (status !== "granted") {
+    throw new LocationPermissionDeniedError();
+  }
+
   const results = await Location.geocodeAsync(query);
   return results.map((r) => ({
     place: query,

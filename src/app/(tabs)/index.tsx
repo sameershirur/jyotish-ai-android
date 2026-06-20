@@ -9,7 +9,13 @@ import { ThemedView } from '@/components/themed-view';
 import { generateBirthChart } from '@/lib/astrology';
 import type { ChartInput } from '@/lib/astrology/types';
 import { saveChart, countCharts } from '@/lib/db';
-import { cacheRecentPlace, geocodePlace, getRecentPlaces, type GeocodedPlace } from '@/lib/location';
+import {
+  cacheRecentPlace,
+  geocodePlace,
+  getRecentPlaces,
+  LocationPermissionDeniedError,
+  type GeocodedPlace,
+} from '@/lib/location';
 import { runSync } from '@/lib/sync';
 import { useUserPlan } from '@/hooks/useUserPlan';
 
@@ -46,8 +52,12 @@ export default function GenerateScreen() {
       setCoords(results[0]);
       await cacheRecentPlace(results[0]);
       setRecent(await getRecentPlaces());
-    } catch {
-      setError('Geocoding needs an internet connection. Pick a previously used place instead.');
+    } catch (e) {
+      if (e instanceof LocationPermissionDeniedError) {
+        setError(e.message);
+      } else {
+        setError('Geocoding needs an internet connection. Pick a previously used place instead.');
+      }
     } finally {
       setGeocoding(false);
     }
