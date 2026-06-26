@@ -134,7 +134,6 @@ export default function SignUpScreen() {
           <ThemedText type="smallBold">Email</ThemedText>
           <TextInput
             style={styles.input}
-            value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
             autoCorrect={false}
@@ -149,7 +148,6 @@ export default function SignUpScreen() {
           <ThemedText type="smallBold">Password</ThemedText>
           <TextInput
             style={styles.input}
-            value={password}
             onChangeText={setPassword}
             secureTextEntry
             autoCorrect={false}
