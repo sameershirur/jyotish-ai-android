@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
@@ -55,7 +55,8 @@ export default function SignInScreen() {
   }, [startSSOFlow, router]);
 
   async function handleSignIn() {
-    if (!isLoaded || !email || !password) return;
+    if (!isLoaded) { setError('Still loading — please wait a moment.'); return; }
+    if (!email || !password) { setError('Please enter your email and password.'); return; }
     setSubmitting(true);
     setError(null);
     try {
@@ -78,66 +79,72 @@ export default function SignInScreen() {
   }
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">Sign in</ThemedText>
-      <ThemedText themeColor="textSecondary">
-        Same account as the web app. Needed for AI interpretation, sync, and plan status — chart
-        generation works without signing in.
-      </ThemedText>
+    <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        <ThemedText type="title">Sign in</ThemedText>
+        <ThemedText themeColor="textSecondary">
+          Same account as the web app. Needed for AI interpretation, sync, and plan status — chart
+          generation works without signing in.
+        </ThemedText>
 
-      <Pressable style={styles.googleButton} onPress={handleGoogleSignIn} disabled={googleLoading}>
-        {googleLoading ? (
-          <ActivityIndicator color="#1f2937" />
-        ) : (
-          <ThemedText style={styles.googleButtonText}>Continue with Google</ThemedText>
-        )}
-      </Pressable>
+        <Pressable style={styles.googleButton} onPress={handleGoogleSignIn} disabled={googleLoading}>
+          {googleLoading ? (
+            <ActivityIndicator color="#1f2937" />
+          ) : (
+            <ThemedText style={styles.googleButtonText}>Continue with Google</ThemedText>
+          )}
+        </Pressable>
 
-      <View style={styles.dividerRow}>
-        <View style={styles.dividerLine} />
-        <ThemedText type="small" themeColor="textSecondary">or</ThemedText>
-        <View style={styles.dividerLine} />
-      </View>
+        <View style={styles.dividerRow}>
+          <View style={styles.dividerLine} />
+          <ThemedText type="small" themeColor="textSecondary">or</ThemedText>
+          <View style={styles.dividerLine} />
+        </View>
 
-      <View style={styles.field}>
-        <ThemedText type="smallBold">Email</ThemedText>
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="email-address"
-          placeholder="you@example.com"
-        />
-      </View>
+        <View style={styles.field}>
+          <ThemedText type="smallBold">Email</ThemedText>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="off"
+            spellCheck={false}
+            keyboardType="email-address"
+            placeholder="you@example.com"
+          />
+        </View>
 
-      <View style={styles.field}>
-        <ThemedText type="smallBold">Password</ThemedText>
-        <TextInput
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          autoCorrect={false}
-          placeholder="••••••••"
-        />
-      </View>
+        <View style={styles.field}>
+          <ThemedText type="smallBold">Password</ThemedText>
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            autoCorrect={false}
+            autoComplete="off"
+            placeholder="••••••••"
+          />
+        </View>
 
-      {error && <ThemedText style={styles.error}>{error}</ThemedText>}
+        {error && <ThemedText style={styles.error}>{error}</ThemedText>}
 
-      <Pressable style={styles.button} onPress={handleSignIn} disabled={submitting}>
-        {submitting ? <ActivityIndicator color="#fff" /> : <ThemedText style={styles.buttonText}>Sign in</ThemedText>}
-      </Pressable>
+        <Pressable style={styles.button} onPress={handleSignIn} disabled={submitting}>
+          {submitting ? <ActivityIndicator color="#fff" /> : <ThemedText style={styles.buttonText}>Sign in</ThemedText>}
+        </Pressable>
 
-      <Pressable onPress={() => router.push('/sign-up')}>
-        <ThemedText type="link" style={styles.link}>Don&apos;t have an account? Sign up</ThemedText>
-      </Pressable>
-    </ThemedView>
+        <Pressable onPress={() => router.push('/sign-up')}>
+          <ThemedText type="link" style={styles.link}>Don&apos;t have an account? Sign up</ThemedText>
+        </Pressable>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  flex: { flex: 1 },
   container: { padding: 16, gap: 16 },
   field: { gap: 6 },
   input: {
