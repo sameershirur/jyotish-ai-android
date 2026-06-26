@@ -9,7 +9,7 @@ import { secureTokenCache } from '@/lib/auth/tokenCache';
 // proven unreliable (the build claims to load it but the bundled JS doesn't
 // see it), so don't depend on EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY alone.
 const CLERK_PUBLISHABLE_KEY =
-  process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ?? 'pk_test_d29ya2luZy1idXJyby01NC5jbGVyay5hY2NvdW50cy5kZXYk';
+  process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ?? 'pk_live_Y2xlcmsuYmhhdmlzaHlhZGVlcGEuY29tJA';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
