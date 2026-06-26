@@ -13,7 +13,7 @@ export async function isOnline(): Promise<boolean> {
 
 type RemoteChart = {
   id: string;
-  label: string | null;
+  name: string | null;
   chart_data: BirthChart;
   updated_at: string;
 };
@@ -63,7 +63,7 @@ async function pullRemoteCharts(token: string): Promise<{ count: number; errors:
 
     const remoteCharts = (await res.json()) as RemoteChart[];
     for (const r of remoteCharts) {
-      await upsertFromRemote({ id: r.id, label: r.label, chart: r.chart_data, updatedAt: r.updated_at });
+      await upsertFromRemote({ id: r.id, label: r.name, chart: r.chart_data, updatedAt: r.updated_at });
     }
     return { count: remoteCharts.length, errors: [] };
   } catch (e) {
