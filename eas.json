@@ -11,7 +11,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_d29ya2luZy1idXJyby01NC5jbGVyay5hY2NvdW50cy5kZXYk",
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_live_Y2xlcmsuYmhhdmlzaHlhZGVlcGEuY29tJA",
         "EXPO_PUBLIC_API_BASE_URL": "https://bhavishyadeepa.com"
       }
     },
@@ -21,7 +21,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_d29ya2luZy1idXJyby01NC5jbGVyay5hY2NvdW50cy5kZXYk",
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_live_Y2xlcmsuYmhhdmlzaHlhZGVlcGEuY29tJA",
         "EXPO_PUBLIC_API_BASE_URL": "https://bhavishyadeepa.com"
       }
     },
@@ -31,7 +31,7 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_d29ya2luZy1idXJyby01NC5jbGVyay5hY2NvdW50cy5kZXYk",
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_live_Y2xlcmsuYmhhdmlzaHlhZGVlcGEuY29tJA",
         "EXPO_PUBLIC_API_BASE_URL": "https://bhavishyadeepa.com"
       }
     }

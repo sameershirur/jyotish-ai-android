@@ -34,7 +34,7 @@ export default function InterpretationSection({ chart }: { chart: BirthChart }) 
 
   async function generateSummary() {
     const token = await getToken();
-    if (!token) return;
+    if (!token) { setSummaryError('Session expired — please sign out and sign in again.'); return; }
     setSummaryLoading(true);
     setSummary('');
     setSummaryError(null);
@@ -54,7 +54,7 @@ export default function InterpretationSection({ chart }: { chart: BirthChart }) 
 
   async function generateDetailed() {
     const token = await getToken();
-    if (!token) return;
+    if (!token) { setDetailedError('Session expired — please sign out and sign in again.'); return; }
     setDetailedLoading(true);
     setDetailed('');
     setDetailedError(null);
